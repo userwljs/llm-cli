@@ -1,2 +1,3 @@
 # LLM CLI
-一个 LLM 的命令行界面。
+A CLI for LLMs.
+<p align="center">English | <a href="README.zh_CN.md">简体中文</a></p>
