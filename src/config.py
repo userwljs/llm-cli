@@ -4,7 +4,7 @@ from pydantic import BaseModel, model_validator
 
 
 class DefaultConfig(BaseModel):
-    model: Optional[str]
+    model: Optional[str] = None
 
 
 class Provider(BaseModel):
@@ -20,12 +20,14 @@ class Model(BaseModel):
 
 
 class Config(BaseModel):
-    default: Optional[DefaultConfig]
-    providers: Optional[Dict[str, Provider]]
-    models: Optional[Dict[str, Model]]
+    default: DefaultConfig = DefaultConfig()
+    providers: Dict[str, Provider]
+    models: Dict[str, Model]
 
     @model_validator(mode="after")
     def check_default_model_exists(self) -> Self:
+        if self.default.model is None:
+            return self
         if self.default.model not in self.models.keys():
             raise ValueError(
                 "default model {model} is not defined".format(model=self.default.model)
