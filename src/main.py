@@ -27,6 +27,9 @@ with open(config_path, "rb") as f:
     except ValidationError as e:
         print("Invalid config file {fp}.\nError: {e}".format(fp=config_path, e=e))
         sys.exit(1)
+    except tomllib.TOMLDecodeError:
+        print("Invalid config TOML: {fp}".format(fp=config_path))
+        sys.exit(1)
 
 
 app = typer.Typer()
