@@ -8,6 +8,7 @@ import typer
 from pydantic import ValidationError
 
 from config import Config
+from utils import AutoName
 
 dirs = platformdirs.PlatformDirs(appname="llm-cli", appauthor=False)
 config_path = os.path.join(dirs.user_config_dir, "config.toml")
@@ -29,15 +30,17 @@ with open(config_path, "rb") as f:
 
 
 app = typer.Typer()
+model_name_enum = AutoName("model_name", list(config.models.keys()))
 
 
 @app.command()
 def chat(
     msg: Annotated[str, typer.Argument()] = None,
     model_name: Annotated[
-        str, typer.Argument(show_choices=config.models.keys())
+        model_name_enum, typer.Option("--model", "-m")
     ] = config.default.model,
 ):
+    model_name = model_name.name
     from pydantic_ai import Agent
     from pydantic_ai.models.openai import OpenAIModel
     from pydantic_ai.providers.openai import OpenAIProvider
