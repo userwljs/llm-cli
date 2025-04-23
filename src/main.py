@@ -38,7 +38,7 @@ model_name_enum = AutoName("model_name", list(config.models.keys()))
 
 @app.command()
 def chat(
-    msg: Annotated[str, typer.Argument()] = None,
+    msg: Annotated[str, typer.Argument()] = "",
     model_name: Annotated[
         model_name_enum, typer.Option("--model", "-m")
     ] = config.default.model,
@@ -48,6 +48,12 @@ def chat(
             "Model name is required. Use --model/-m to specific a model or set the default model."
         )
         sys.exit(1)
+    if not sys.stdin.isatty():
+        msg += sys.stdin.read()
+    if msg == "":
+        msg = typer.prompt("Enter your message: ", prompt_suffix="")
+        if not msg:
+            raise typer.Abort()
     model_name = model_name.name
     from pydantic_ai import Agent
     from pydantic_ai.models.openai import OpenAIModel
