@@ -43,6 +43,11 @@ def chat(
         model_name_enum, typer.Option("--model", "-m")
     ] = config.default.model,
 ):
+    if model_name is None:
+        print(
+            "Model name is required. Use --model/-m to specific a model or set the default model."
+        )
+        sys.exit(1)
     model_name = model_name.name
     from pydantic_ai import Agent
     from pydantic_ai.models.openai import OpenAIModel
