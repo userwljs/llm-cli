@@ -45,7 +45,7 @@ def chat(
 ):
     if model_name is None:
         print(
-            "Model name is required. Use --model/-m to specific a model or set the default model."
+            "Model name is required. Use --model/-m to specific a model. Or edit the config to set the default model."
         )
         sys.exit(1)
     if not sys.stdin.isatty():
