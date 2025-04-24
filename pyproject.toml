@@ -10,3 +10,6 @@ dependencies = [
     "pydantic-ai>=0.0.46",
     "typer>=0.15.2",
 ]
+
+[project.scripts]
+llm-cli = "main:app"
