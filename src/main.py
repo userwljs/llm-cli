@@ -4,6 +4,7 @@ import tomllib
 from typing import Annotated
 
 import platformdirs
+import prompt_toolkit
 import typer
 from pydantic import ValidationError
 
@@ -51,7 +52,7 @@ def chat(
     if not sys.stdin.isatty():
         msg += sys.stdin.read()
     if msg == "":
-        msg = typer.prompt("Enter your message: ", prompt_suffix="")
+        msg = prompt_toolkit.prompt("Enter your message: ") + msg
         if not msg:
             raise typer.Abort()
     model_name = model_name.name
