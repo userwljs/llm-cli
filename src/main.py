@@ -40,18 +40,25 @@ def chat(
         chat_multi_turn(agent, first_msg=msg, markdown_output=markdown_output)
         return
     if msg == "":
-        msg = prompt_toolkit.prompt("Enter your message: ") + msg
+        msg = prompt_toolkit.prompt(config.default.user_prompt_prefix) + msg
         if not msg:
             raise typer.Abort()
 
-    asyncio.run(run_stream(msg, agent, markdown=markdown_output, prefix="Assistant: "))
+    asyncio.run(
+        run_stream(
+            msg,
+            agent,
+            markdown=markdown_output,
+            prefix=config.default.assistant_output_prefix,
+        )
+    )
 
 
 def chat_multi_turn(
     agent,
     first_msg: str = "",
     markdown_output: bool = config.default.markdown_output,
-    prefix: str = "Assistant: ",
+    prefix: str = config.default.assistant_output_prefix,
 ):
     from utils.llm import run_stream
 
@@ -64,7 +71,7 @@ def chat_multi_turn(
     prompt_session = prompt_toolkit.PromptSession()
     try:
         while True:
-            msg = prompt_session.prompt("User: ")
+            msg = prompt_session.prompt(config.default.user_prompt_prefix)
             if not msg:
                 raise typer.Abort()
             result = asyncio.run(

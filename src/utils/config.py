@@ -11,6 +11,8 @@ class DefaultConfig(BaseModel):
     model: Optional[str] = None
     markdown_output: bool = True
     multi_turn: bool = True
+    user_prompt_prefix: str = "User: "
+    assistant_output_prefix: str = "Assistant: "
 
 
 class Provider(BaseModel):
