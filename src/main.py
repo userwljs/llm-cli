@@ -1,3 +1,4 @@
+import asyncio
 import os
 import sys
 from typing import Annotated
@@ -20,6 +21,9 @@ def chat(
     model_name: Annotated[
         model_name_enum, typer.Option("--model", "-m")
     ] = config.default.model,
+    markdown_output: Annotated[
+        bool, typer.Option(is_flag=True)
+    ] = config.default.markdown_output,
 ):
     if model_name is None:
         print(
@@ -53,7 +57,9 @@ def chat(
         model = OpenAIModel(model_name=conf_model.model_name, provider=provider)
         agent = Agent(model=model)
 
-    print(agent.run_sync(msg).data)
+    from utils.llm import run_stream
+
+    asyncio.run(run_stream(msg, agent, markdown=markdown_output, prefix="Assistant: "))
 
 
 if __name__ == "__main__":

@@ -9,6 +9,7 @@ dependencies = [
     "prompt-toolkit>=3.0.51",
     "pydantic>=2.11.3",
     "pydantic-ai>=0.0.46",
+    "rich>=14.0.0",
     "typer>=0.15.2",
 ]
 

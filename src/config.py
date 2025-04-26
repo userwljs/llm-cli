@@ -9,6 +9,7 @@ from pydantic import BaseModel, ValidationError, model_validator
 
 class DefaultConfig(BaseModel):
     model: Optional[str] = None
+    markdown_output: bool = True
 
 
 class Provider(BaseModel):
