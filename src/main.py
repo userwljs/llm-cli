@@ -6,8 +6,8 @@ from typing import Annotated
 import prompt_toolkit
 import typer
 
-from config import load_config
 from utils.cli import AutoName
+from utils.config import load_config
 
 config = load_config()
 
