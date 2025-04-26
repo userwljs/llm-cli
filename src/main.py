@@ -6,7 +6,7 @@ import prompt_toolkit
 import typer
 
 from config import load_config
-from utils import AutoName
+from utils.cli import AutoName
 
 config = load_config()
 
