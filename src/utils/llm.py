@@ -1,6 +1,7 @@
 import os
 
 from pydantic_ai import Agent
+from pydantic_ai.result import StreamedRunResult
 from rich.console import Console
 from rich.live import Live
 from rich.markdown import Markdown
@@ -8,7 +9,9 @@ from rich.markdown import Markdown
 from .config import Config
 
 
-async def run_stream(msg: str, agent: Agent, markdown: bool = True, prefix=""):
+async def run_stream(
+    msg: str, agent: Agent, markdown: bool = True, prefix="", *args, **kwargs
+) -> StreamedRunResult:
     """
     Run a streaming message through an agent and display it using either Markdown or plaintext formatting.
 
@@ -24,27 +27,33 @@ async def run_stream(msg: str, agent: Agent, markdown: bool = True, prefix=""):
     :type prefix: str
     """
     if markdown:
-        await run_stream_markdown(msg, agent, prefix=prefix)
+        return await run_stream_markdown(msg, agent, prefix=prefix, *args, **kwargs)
     else:
-        await run_stream_plaintext(msg, agent, prefix=prefix)
+        return await run_stream_plaintext(msg, agent, prefix=prefix, *args, **kwargs)
 
 
-async def run_stream_markdown(msg: str, agent: Agent, prefix=""):
+async def run_stream_markdown(
+    msg: str, agent: Agent, prefix="", *args, **kwargs
+) -> StreamedRunResult:
     console = Console()
     with Live("", console=console) as live:
-        async with agent.run_stream(msg) as result:
+        async with agent.run_stream(msg, *args, **kwargs) as result:
             async for msg in result.stream():
                 live.update(Markdown(prefix + "\n" + msg))
                 # Add "\n" to prevent the heading from not being rendered if the first line is a Markdown heading and prefix is set.
                 # 添加 "\n" 来防止：当第一行是 Markdown 标题且有前缀时，标题不渲染。
+    return result
 
 
-async def run_stream_plaintext(msg: str, agent: Agent, prefix=""):
+async def run_stream_plaintext(
+    msg: str, agent: Agent, prefix="", *args, **kwargs
+) -> StreamedRunResult:
     console = Console()
     with Live("", console=console) as live:
-        async with agent.run_stream(msg) as result:
+        async with agent.run_stream(msg, *args, **kwargs) as result:
             async for msg in result.stream():
                 live.update(prefix + msg)
+    return result
 
 
 def create_agent(model_name: str, config: Config):
