@@ -40,7 +40,9 @@ async def run_stream_markdown(
     msg: str, agent: Agent, prefix="", *args, **kwargs
 ) -> StreamedRunResult:
     console = Console()
-    with Live("", console=console) as live:
+    # Set vertical_overflow to visible to prevent the content from being truncated. However, it has a bug: https://github.com/Textualize/rich/pull/3637
+    # 将 vertical_overflow 设置为 visible 是为了让过长的内容不截断。但是它有问题：https://github.com/Textualize/rich/pull/3637
+    with Live("", console=console, vertical_overflow="visible") as live:
         async with agent.run_stream(msg, *args, **kwargs) as result:
             async for msg in result.stream():
                 live.update(Markdown(prefix + "\n" + msg))
@@ -53,7 +55,9 @@ async def run_stream_plaintext(
     msg: str, agent: Agent, prefix="", *args, **kwargs
 ) -> StreamedRunResult:
     console = Console()
-    with Live("", console=console) as live:
+    # Set vertical_overflow to visible to prevent the content from being truncated. However, it has a bug: https://github.com/Textualize/rich/pull/3637
+    # 将 vertical_overflow 设置为 visible 是为了让过长的内容不截断。但是它有问题：https://github.com/Textualize/rich/pull/3637
+    with Live("", console=console, vertical_overflow="visible") as live:
         async with agent.run_stream(msg, *args, **kwargs) as result:
             async for msg in result.stream():
                 live.update(prefix + msg)
