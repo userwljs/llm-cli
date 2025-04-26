@@ -1,7 +1,11 @@
+import os
+
 from pydantic_ai import Agent
 from rich.console import Console
 from rich.live import Live
 from rich.markdown import Markdown
+
+from .config import Config
 
 
 async def run_stream(msg: str, agent: Agent, markdown: bool = True, prefix=""):
@@ -41,3 +45,26 @@ async def run_stream_plaintext(msg: str, agent: Agent, prefix=""):
         async with agent.run_stream(msg) as result:
             async for msg in result.stream():
                 live.update(prefix + msg)
+
+
+def create_agent(model_name: str, config: Config):
+    # Get config. 获取配置。
+    conf_model = config.models[model_name]
+    conf_provider = config.providers[conf_model.provider]
+    assert conf_provider.api_key_type in ["key", "env"]
+    if conf_provider.api_key_type == "key":
+        api_key = conf_provider.api_key
+    elif conf_provider.api_key_type == "env":
+        api_key = os.getenv(conf_provider.api_key)
+
+    # Create Agent. 创建智能体。
+    assert conf_provider.type in ["openai"]
+    if conf_provider.type == "openai":
+        from pydantic_ai import Agent
+        from pydantic_ai.models.openai import OpenAIModel
+        from pydantic_ai.providers.openai import OpenAIProvider
+
+        provider = OpenAIProvider(base_url=conf_provider.base_url, api_key=api_key)
+        model = OpenAIModel(model_name=conf_model.model_name, provider=provider)
+        agent = Agent(model=model)
+    return agent

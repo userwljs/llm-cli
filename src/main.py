@@ -1,5 +1,4 @@
 import asyncio
-import os
 import sys
 from typing import Annotated
 
@@ -37,28 +36,9 @@ def chat(
         if not msg:
             raise typer.Abort()
     model_name = model_name.name
-    from pydantic_ai import Agent
-    from pydantic_ai.models.openai import OpenAIModel
-    from pydantic_ai.providers.openai import OpenAIProvider
+    from utils.llm import create_agent, run_stream
 
-    # Get config. 获取配置。
-    conf_model = config.models[model_name]
-    conf_provider = config.providers[conf_model.provider]
-    assert conf_provider.api_key_type in ["key", "env"]
-    if conf_provider.api_key_type == "key":
-        api_key = conf_provider.api_key
-    elif conf_provider.api_key_type == "env":
-        api_key = os.getenv(conf_provider.api_key)
-
-    # Create Agent. 创建智能体。
-    assert conf_provider.type in ["openai"]
-    if conf_provider.type == "openai":
-        provider = OpenAIProvider(base_url=conf_provider.base_url, api_key=api_key)
-        model = OpenAIModel(model_name=conf_model.model_name, provider=provider)
-        agent = Agent(model=model)
-
-    from utils.llm import run_stream
-
+    agent = create_agent(model_name, config)
     asyncio.run(run_stream(msg, agent, markdown=markdown_output, prefix="Assistant: "))
 
 
