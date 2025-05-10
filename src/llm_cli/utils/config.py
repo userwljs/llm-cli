@@ -4,7 +4,6 @@
 # You should have received a copy of the GNU General Public License along with the LLM CLI. If not, see <https://www.gnu.org/licenses/>.
 import os
 import sys
-import tomllib
 from typing import Dict, Literal, Optional, Self
 
 import platformdirs
@@ -73,10 +72,33 @@ def load_config() -> Config:
 
     with open(config_path, "rb") as f:
         try:
-            return Config(**tomllib.load(f))
+            if (
+                sys.version_info.minor < 11
+            ):  # tomllib is added in version 3.11. tomllib 在版本 3.11 加入。
+                import tomli  # type: ignore
+
+                try:
+                    p = tomli.load(f)
+                except tomli.TOMLDecodeError as e:
+                    print(
+                        "Invalid config TOML: {fp}\nError: {e}".format(
+                            fp=config_path, e=e
+                        )
+                    )
+                    sys.exit(1)
+            else:
+                import tomllib
+
+                try:
+                    p = tomllib.load(f)
+                except tomllib.TOMLDecodeError as e:
+                    print(
+                        "Invalid config TOML: {fp}\nError: {e}".format(
+                            fp=config_path, e=e
+                        )
+                    )
+                    sys.exit(1)
+            return Config(**p)
         except ValidationError as e:
             print("Invalid config file {fp}.\nError: {e}".format(fp=config_path, e=e))
-            sys.exit(1)
-        except tomllib.TOMLDecodeError:
-            print("Invalid config TOML: {fp}".format(fp=config_path))
             sys.exit(1)
