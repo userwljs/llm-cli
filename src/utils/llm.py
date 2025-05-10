@@ -30,58 +30,40 @@ async def run_stream(
     :param prefix: A prefix to add to each assistant output. 添加到每个助手输出的前缀。
     :type prefix: str
     """
-    if markdown:
-        return await run_stream_markdown(msg, agent, prefix=prefix, *args, **kwargs)
-    else:
-        return await run_stream_plaintext(msg, agent, prefix=prefix, *args, **kwargs)
-
-
-async def run_stream_markdown(
-    msg: str, agent: Agent, prefix="", *args, **kwargs
-) -> StreamedRunResult:
     console = Console()
     # Set vertical_overflow to visible to prevent the content from being truncated. However, it has a bug: https://github.com/Textualize/rich/pull/3637
     # 将 vertical_overflow 设置为 visible 是为了让过长的内容不截断。但是它有问题：https://github.com/Textualize/rich/pull/3637
     with Live("", console=console, vertical_overflow="visible") as live:
         async with agent.run_stream(msg, *args, **kwargs) as result:
             async for msg in result.stream():
-                live.update(Markdown(prefix + "\n" + msg))
-                # Add "\n" to prevent the heading from not being rendered if the first line is a Markdown heading and prefix is set.
-                # 添加 "\n" 来防止：当第一行是 Markdown 标题且有前缀时，标题不渲染。
+                if markdown:
+                    live.update(Markdown(prefix + "\n" + msg))
+                    # Add "\n" to prevent the heading from not being rendered if the first line is a Markdown heading and prefix is set.
+                    # 添加 "\n" 来防止：当第一行是 Markdown 标题且有前缀时，标题不渲染。
+                else:
+                    live.update(prefix + msg)
     return result
 
 
-async def run_stream_plaintext(
-    msg: str, agent: Agent, prefix="", *args, **kwargs
-) -> StreamedRunResult:
-    console = Console()
-    # Set vertical_overflow to visible to prevent the content from being truncated. However, it has a bug: https://github.com/Textualize/rich/pull/3637
-    # 将 vertical_overflow 设置为 visible 是为了让过长的内容不截断。但是它有问题：https://github.com/Textualize/rich/pull/3637
-    with Live("", console=console, vertical_overflow="visible") as live:
-        async with agent.run_stream(msg, *args, **kwargs) as result:
-            async for msg in result.stream():
-                live.update(prefix + msg)
-    return result
+class AgentCreator:
+    def from_model_name(model_name: str, config: Config):
+        # Get config. 获取配置。
+        conf_model = config.models[model_name]
+        conf_provider = config.providers[conf_model.provider]
+        assert conf_provider.api_key_type in ["key", "env"]
+        if conf_provider.api_key_type == "key":
+            api_key = conf_provider.api_key
+        elif conf_provider.api_key_type == "env":
+            api_key = os.getenv(conf_provider.api_key)
 
+        # Create Agent. 创建智能体。
+        assert conf_provider.type in ["openai"]
+        if conf_provider.type == "openai":
+            from pydantic_ai import Agent
+            from pydantic_ai.models.openai import OpenAIModel
+            from pydantic_ai.providers.openai import OpenAIProvider
 
-def create_agent(model_name: str, config: Config):
-    # Get config. 获取配置。
-    conf_model = config.models[model_name]
-    conf_provider = config.providers[conf_model.provider]
-    assert conf_provider.api_key_type in ["key", "env"]
-    if conf_provider.api_key_type == "key":
-        api_key = conf_provider.api_key
-    elif conf_provider.api_key_type == "env":
-        api_key = os.getenv(conf_provider.api_key)
-
-    # Create Agent. 创建智能体。
-    assert conf_provider.type in ["openai"]
-    if conf_provider.type == "openai":
-        from pydantic_ai import Agent
-        from pydantic_ai.models.openai import OpenAIModel
-        from pydantic_ai.providers.openai import OpenAIProvider
-
-        provider = OpenAIProvider(base_url=conf_provider.base_url, api_key=api_key)
-        model = OpenAIModel(model_name=conf_model.model_name, provider=provider)
-        agent = Agent(model=model)
-    return agent
+            provider = OpenAIProvider(base_url=conf_provider.base_url, api_key=api_key)
+            model = OpenAIModel(model_name=conf_model.model_name, provider=provider)
+            agent = Agent(model=model)
+        return agent
