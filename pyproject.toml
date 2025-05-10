@@ -14,4 +14,4 @@ dependencies = [
 ]
 
 [project.scripts]
-llm-cli = "main:app"
+llm-cli = "llm_cli:cli"

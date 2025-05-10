@@ -4,8 +4,8 @@
 # You should have received a copy of the GNU General Public License along with the LLM CLI. If not, see <https://www.gnu.org/licenses/>.
 import click
 
-from chat import ChatCommand
-from utils.config import load_config
+from .chat import ChatCommand
+from .utils.config import load_config
 
 config = load_config()
 

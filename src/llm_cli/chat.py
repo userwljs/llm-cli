@@ -8,7 +8,7 @@ import sys
 import click
 import prompt_toolkit
 
-from utils.config import Config
+from .utils.config import Config
 
 
 class ChatCommand(click.Command):
@@ -17,7 +17,7 @@ class ChatCommand(click.Command):
         self._init_click_command()
 
     def chat(self, msg: str, model_name: str, markdown_output: bool, multi_turn: bool):
-        from utils.llm import AgentCreator, run_stream
+        from .utils.llm import AgentCreator, run_stream
 
         if model_name is None:
             print(
@@ -87,7 +87,7 @@ class ChatCommand(click.Command):
         markdown_output: bool,
         prefix: str,
     ):
-        from utils.llm import run_stream
+        from .utils.llm import run_stream
 
         messages = []  # The message history. 消息记录。
         if first_msg:
