@@ -4,92 +4,112 @@
 # You should have received a copy of the GNU General Public License along with the LLM CLI. If not, see <https://www.gnu.org/licenses/>.
 import asyncio
 import sys
-from typing import Annotated
 
+import click
 import prompt_toolkit
-import typer
 
-from utils.cli import AutoName
-from utils.config import load_config
-
-app = typer.Typer()
+from utils.config import Config
 
 
-config = load_config()
+class ChatCommand(click.Command):
+    def __init__(self, config: Config):
+        self.config = config
+        self._init_click_command()
 
-app = typer.Typer()
-model_name_enum = AutoName("model_name", list(config.models.keys()))
+    def chat(self, msg: str, model_name: str, markdown_output: bool, multi_turn: bool):
+        from utils.llm import AgentCreator, run_stream
 
-
-@app.command()
-def chat(
-    msg: Annotated[str, typer.Argument()] = "",
-    model_name: Annotated[
-        model_name_enum, typer.Option("--model", "-m")
-    ] = config.default.model,
-    markdown_output: Annotated[
-        bool, typer.Option(is_flag=True)
-    ] = config.default.markdown_output,
-    multi_turn: Annotated[bool, typer.Option(is_flag=True)] = config.default.multi_turn,
-):
-    from utils.llm import AgentCreator, run_stream
-
-    if model_name is None:
-        print(
-            "Model name is required. Use --model/-m to specific a model. Or edit the config to set the default model."
-        )
-        sys.exit(1)
-    model_name = model_name.name
-    agent = AgentCreator.from_model_name(model_name, config)
-    if not sys.stdin.isatty():
-        msg += sys.stdin.read()
-    if multi_turn:
-        chat_multi_turn(agent, first_msg=msg, markdown_output=markdown_output)
-        return
-    if msg == "":
-        msg = prompt_toolkit.prompt(config.default.user_prompt_prefix) + msg
-        if not msg:
-            raise typer.Abort()
-
-    asyncio.run(
-        run_stream(
-            msg,
-            agent,
-            markdown=markdown_output,
-            prefix=config.default.assistant_output_prefix,
-        )
-    )
-
-
-def chat_multi_turn(
-    agent,
-    first_msg: str = "",
-    markdown_output: bool = config.default.markdown_output,
-    prefix: str = config.default.assistant_output_prefix,
-):
-    from utils.llm import run_stream
-
-    messages = []  # The message history. 消息记录。
-    if first_msg:
-        result = asyncio.run(
-            run_stream(first_msg, agent, markdown=markdown_output, prefix=prefix)
-        )
-        messages.extend(result.new_messages())
-    prompt_session = prompt_toolkit.PromptSession()
-    try:
-        while True:
-            msg = prompt_session.prompt(config.default.user_prompt_prefix)
+        if model_name is None:
+            print(
+                "Model name is required. Use --model/-m to specific a model. Or edit the config to set the default model."
+            )
+            sys.exit(1)
+        agent = AgentCreator.from_model_name(model_name, self.config)
+        if not sys.stdin.isatty():
+            msg += sys.stdin.read()
+        if multi_turn:
+            self.chat_multi_turn(
+                agent,
+                first_msg=msg,
+                markdown_output=markdown_output,
+                prefix=self.config.default.assistant_output_prefix,
+            )
+            return
+        if msg == "":
+            msg = prompt_toolkit.prompt(self.config.default.user_prompt_prefix) + msg
             if not msg:
-                raise typer.Abort()
+                raise click.Abort()
+
+        asyncio.run(
+            run_stream(
+                msg,
+                agent,
+                markdown=markdown_output,
+                prefix=self.config.default.assistant_output_prefix,
+            )
+        )
+
+    def _init_click_command(self):
+        super().__init__(
+            "chat",
+            callback=self.chat,
+            params=[
+                click.Argument(["msg"], required=False, type=click.STRING),
+                click.Option(
+                    ["--model", "-m", "model_name"],
+                    type=click.Choice(self.config.models.keys()),
+                    default=self.config.default.model,
+                    show_choices=True,
+                    show_default=True,
+                    help="Specific the model.",
+                ),
+                click.Option(
+                    ["--multi-turn/--no-multi-turn"],
+                    type=click.BOOL,
+                    default=self.config.default.multi_turn,
+                    is_flag=True,
+                    show_default=True,
+                ),
+                click.Option(
+                    ["--markdown-output/--no-markdown-output"],
+                    type=click.BOOL,
+                    default=self.config.default.markdown_output,
+                    is_flag=True,
+                    show_default=True,
+                ),
+            ],
+        )
+
+    def chat_multi_turn(
+        self,
+        agent,
+        first_msg: str,
+        markdown_output: bool,
+        prefix: str,
+    ):
+        from utils.llm import run_stream
+
+        messages = []  # The message history. 消息记录。
+        if first_msg:
             result = asyncio.run(
-                run_stream(
-                    msg,
-                    agent,
-                    markdown=markdown_output,
-                    prefix=prefix,
-                    message_history=messages,
-                )
+                run_stream(first_msg, agent, markdown=markdown_output, prefix=prefix)
             )
             messages.extend(result.new_messages())
-    except KeyboardInterrupt:
-        raise typer.Abort()
+        prompt_session = prompt_toolkit.PromptSession()
+        try:
+            while True:
+                msg = prompt_session.prompt(self.config.default.user_prompt_prefix)
+                if not msg:
+                    raise click.Abort()
+                result = asyncio.run(
+                    run_stream(
+                        msg,
+                        agent,
+                        markdown=markdown_output,
+                        prefix=prefix,
+                        message_history=messages,
+                    )
+                )
+                messages.extend(result.new_messages())
+        except KeyboardInterrupt:
+            raise click.Abort()
