@@ -27,6 +27,7 @@ class ChatCommand(click.Command):
         agent = AgentCreator.from_model_name(model_name, self.config)
         if not sys.stdin.isatty():
             msg += sys.stdin.read()
+            multi_turn = False
         if multi_turn:
             self.chat_multi_turn(
                 agent,
@@ -36,7 +37,7 @@ class ChatCommand(click.Command):
             )
             return
         if msg == "":
-            msg = prompt_toolkit.prompt(self.config.default.user_prompt_prefix) + msg
+            msg = prompt_toolkit.prompt(self.config.default.user_prompt_prefix)
             if not msg:
                 raise click.Abort()
 
@@ -54,7 +55,7 @@ class ChatCommand(click.Command):
             "chat",
             callback=self.chat,
             params=[
-                click.Argument(["msg"], required=False, type=click.STRING),
+                click.Argument(["msg"], default="", required=False, type=click.STRING),
                 click.Option(
                     ["--model", "-m", "model_name"],
                     type=click.Choice(self.config.models.keys()),
@@ -69,6 +70,7 @@ class ChatCommand(click.Command):
                     default=self.config.default.multi_turn,
                     is_flag=True,
                     show_default=True,
+                    help="Whether to multi-turn. If the standard input is not a TTY (e.g., piped input), this option will be set to no-multi-turn.",
                 ),
                 click.Option(
                     ["--markdown-output/--no-markdown-output"],
@@ -76,6 +78,7 @@ class ChatCommand(click.Command):
                     default=self.config.default.markdown_output,
                     is_flag=True,
                     show_default=True,
+                    help="Whether to format the LLM's output as Markdown.",
                 ),
             ],
         )
@@ -94,7 +97,7 @@ class ChatCommand(click.Command):
             result = asyncio.run(
                 run_stream(first_msg, agent, markdown=markdown_output, prefix=prefix)
             )
-            messages.extend(result.new_messages())
+            messages = result.all_messages()
         prompt_session = prompt_toolkit.PromptSession()
         try:
             while True:
@@ -110,6 +113,6 @@ class ChatCommand(click.Command):
                         message_history=messages,
                     )
                 )
-                messages.extend(result.new_messages())
+                messages = result.all_messages()
         except KeyboardInterrupt:
             raise click.Abort()
