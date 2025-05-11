@@ -21,7 +21,7 @@ class ChatCommand(click.Command):
 
         if model_name is None:
             print(
-                "Model name is required. Use --model/-m to specific a model. Or edit the config to set the default model."
+                "Model name is required. Use --model/-m to specify a model. Or edit the config to set the default model."
             )
             sys.exit(1)
         agent = AgentCreator.from_model_name(model_name, self.config)
@@ -62,7 +62,7 @@ class ChatCommand(click.Command):
                     default=self.config.default.model,
                     show_choices=True,
                     show_default=True,
-                    help="Specific the model.",
+                    help="Specify the model.",
                 ),
                 click.Option(
                     ["--multi-turn/--no-multi-turn"],
