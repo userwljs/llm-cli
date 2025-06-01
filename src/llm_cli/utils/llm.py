@@ -11,6 +11,7 @@ from rich.live import Live
 from rich.markdown import Markdown
 
 from .config import Config
+from .live_render import LiveRender
 
 
 async def run_stream(
@@ -31,9 +32,11 @@ async def run_stream(
     :type prefix: str
     """
     console = Console()
-    # Set vertical_overflow to visible to prevent the content from being truncated. However, it has a bug: https://github.com/Textualize/rich/pull/3637
-    # 将 vertical_overflow 设置为 visible 是为了让过长的内容不截断。但是它有问题：https://github.com/Textualize/rich/pull/3637
-    with Live("", console=console, vertical_overflow="visible") as live:
+    with Live("", console=console) as live:
+        live.vertical_overflow = "crop_above"
+        live._live_render = LiveRender(
+            live.get_renderable(), vertical_overflow="crop_above"
+        )
         async with agent.run_stream(msg, *args, **kwargs) as result:
             async for msg in result.stream():
                 if markdown:
