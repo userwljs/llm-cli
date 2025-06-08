@@ -19,7 +19,7 @@ class DefaultConfig(BaseModel):
 
 
 class Provider(BaseModel):
-    type: Literal["openai"]
+    type: Literal["openai"] = "openai"
     base_url: str
     api_key_type: Literal["key", "env"] = "key"
     api_key: str
