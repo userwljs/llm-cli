@@ -13,6 +13,7 @@ dependencies = [
     "rich>=14.0.0",
     "tomli ; python_full_version < '3.11'",
 ]
+license-files = ["LICENSE", "licenses/*"]
 
 [project.scripts]
 llm-cli = "llm_cli:cli"
