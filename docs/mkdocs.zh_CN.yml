@@ -1,0 +1,24 @@
+site_name: LLM CLI 文档
+docs_dir: zh_CN
+repo_url: https://github.com/userwljs/llm-cli
+repo_name: llm-cli
+theme:
+  name: material
+  language: zh
+  icon:
+    repo: fontawesome/brands/github
+  features:
+    - navigation.tracking
+    - search.suggest
+    - search.highlight
+plugins:
+  - offline
+  - privacy
+  - search
+nav:
+  - 介绍: "index.md"
+  - 安装: "installation.md"
+  - 配置:
+    - 总览: "configuration/overview.md"
+    - 参考: "configuration/reference.md"
+    - 示例: "configuration/examples.md"

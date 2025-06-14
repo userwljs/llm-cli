@@ -1,0 +1,24 @@
+site_name: LLM CLI Documentation
+docs_dir: en
+repo_url: https://github.com/userwljs/llm-cli
+repo_name: llm-cli
+theme:
+  name: material
+  language: en
+  icon:
+    repo: fontawesome/brands/github
+  features:
+    - navigation.tracking
+    - search.suggest
+    - search.highlight
+plugins:
+  - offline
+  - privacy
+  - search
+nav:
+  - Introduce: "index.md"
+  - Installation: "installation.md"
+  - Configuration:
+    - Overview: "configuration/overview.md"
+    - Reference: "configuration/reference.md"
+    - Examples: "configuration/examples.md"
