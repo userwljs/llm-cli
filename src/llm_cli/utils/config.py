@@ -4,7 +4,7 @@
 # You should have received a copy of the GNU General Public License along with the LLM CLI. If not, see <https://www.gnu.org/licenses/>.
 import os
 import sys
-from typing import Dict, Literal, Optional, Self
+from typing import Dict, Literal, Optional
 
 import platformdirs
 from pydantic import BaseModel, ValidationError, model_validator
@@ -36,7 +36,7 @@ class Config(BaseModel):
     models: Dict[str, Model]
 
     @model_validator(mode="after")
-    def check_default_model_exists(self) -> Self:
+    def check_default_model_exists(self) -> "Config":
         if self.default.model is None:
             return self
         if self.default.model not in self.models.keys():
@@ -46,7 +46,7 @@ class Config(BaseModel):
         return self
 
     @model_validator(mode="after")
-    def check_models_providers_exists(self) -> Self:
+    def check_models_providers_exists(self) -> "Config":
         providers = self.providers.keys()
         for model, conf in self.models.items():
             if conf.provider not in providers:
