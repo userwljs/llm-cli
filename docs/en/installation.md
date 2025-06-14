@@ -5,15 +5,15 @@
 
 Install via `pip` (pip may not work by default on MacOS and Linux):
 ```bash
-pip install llm_cli
+pip install llm_ya_cli
 ```
 
 Install via [`pipx`](https://pipx.pypa.io/):
 ```bash
-pipx install llm_cli
+pipx install llm_ya_cli
 ```
 
 Install via [`uv`](https://docs.astral.sh/uv/getting-started/installation/):
 ```bash
-uv tool install llm_cli
+uv tool install llm_ya_cli
 ```

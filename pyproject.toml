@@ -1,5 +1,5 @@
 [project]
-name = "llm-cli"
+name = "llm-ya-cli"
 version = "0.1.0"
 description = "A CLI for LLMs."
 readme = "README.md"
@@ -16,7 +16,7 @@ dependencies = [
 license-files = ["LICENSE", "licenses/*"]
 
 [project.scripts]
-llm-cli = "llm_cli:cli"
+llm-cli = "llm_ya_cli:cli"
 
 [tool.setuptools]
 include-package-data = true
