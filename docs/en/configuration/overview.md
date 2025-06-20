@@ -1,9 +1,9 @@
 # Overview
 ## Location
 The configuration file for LLM CLI is located at:<br>
-Windows: `C:\Users\<YourUsername>\AppData\Local\llm_cli\config.toml`<br>
-macOS: `/Users/<YourUsername>/Library/Application Support/llm_cli/config.toml`<br>
-Linux: `/home/<YourUsername>/.config/llm_cli/config.toml`
+Windows: `C:\Users\<YourUsername>\AppData\Local\llm-cli\config.toml`<br>
+macOS: `/Users/<YourUsername>/Library/Application Support/llm-cli/config.toml`<br>
+Linux: `/home/<YourUsername>/.config/llm-cli/config.toml`
 
 ## Syntax
 LLM CLI uses **[TOML](https://toml.io/en/v1.0.0)** as the configuration file format.

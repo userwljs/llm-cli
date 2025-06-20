@@ -1,9 +1,9 @@
 # 总览
 ## 位置
 LLM CLI 的配置文件位于：<br>
-Windows：`C:\Users\<你的用户名>\AppData\Local\llm_cli\config.toml`<br>
-MacOS：`/Users/<你的用户名>/Library/Application Support/llm_cli/config.toml`<br>
-Linux：`/home/<你的用户名>/.config/llm_cli/config.toml`
+Windows：`C:\Users\<你的用户名>\AppData\Local\llm-cli\config.toml`<br>
+MacOS：`/Users/<你的用户名>/Library/Application Support/llm-cli/config.toml`<br>
+Linux：`/home/<你的用户名>/.config/llm-cli/config.toml`
 
 ## 语法
 LLM CLI 使用 **[TOML](https://toml.io/cn/v1.0.0)** 作为配置文件的格式。
